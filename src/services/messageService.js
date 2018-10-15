@@ -1,13 +1,13 @@
 const { Message } = require('../models')
 const ObjectId = require('mongodb').ObjectID;
-const moment = require('moment')
-const locale = require('moment/locale/pt-br')
 
 const findByDate = date => {
     return Message.find({
         createdAt: {
             $lte: date
         }
+    }).sort({
+        createdAt: -1
     })
 }
 
