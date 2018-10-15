@@ -34,7 +34,7 @@ const login = (req, res) => {
 	serviceUser.findByUsername(username).then(user => {
 		if (user && bcrypt.compareSync(password, user.password)) {
 			const token = jwt.sign({ username: user.username, role: user.role }, process.env.AUTH_SECRET, { expiresIn: "7 days" })
-			respondSuccess(res, 200, { token, username: user.username, email: user.email })
+			respondSuccess(res, 200, { token, username: user.username, email: user.email, _id: user._id })
 		} else {
 			respondErr(res, 500, { errors: ['Usuário/Senha inválidos'] })
 		}

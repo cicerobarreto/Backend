@@ -1,6 +1,7 @@
 const express = require('express')
 const authRoute = require('./authRoute')
 const taskRoute = require('./taskRoute')
+const messageRoute = require('./messageRoute')
 
 /*
  * Rotas abertas
@@ -19,5 +20,8 @@ api.use('/tasks',taskRoute.findByDate)
 api.use('/insertTask',taskRoute.insert)
 api.use('/updateTask',taskRoute.update)
 api.use('/removeTask',taskRoute.remove)
+api.use('/messages',messageRoute.findByDate)
+api.use('/insertMessage',messageRoute.insert)
+api.use('/removeMessage',messageRoute.remove)
 
 module.exports = { oapi, api }
