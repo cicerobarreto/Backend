@@ -10,6 +10,11 @@ const messageSchema = new mongoose.Schema({
     createAt: {
         type: Date,
         required: true
+    },
+
+    createdFor: {
+        type: String,
+        required: false
     }
 })
 

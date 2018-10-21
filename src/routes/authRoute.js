@@ -27,14 +27,13 @@ const auth = (req, res, next) => {
 }
 
 const login = (req, res) => {
-
-	const username = req.body.username || ''
+	const name = req.body.name || ''
 	const password = req.body.password || ''
 
-	serviceUser.findByUsername(username).then(user => {
+	serviceUser.findByUsername(name).then(user => {
 		if (user && bcrypt.compareSync(password, user.password)) {
-			const token = jwt.sign({ username: user.username, role: user.role }, process.env.AUTH_SECRET, { expiresIn: "7 days" })
-			respondSuccess(res, 200, { token, username: user.username, email: user.email, _id: user._id })
+			const token = jwt.sign({ name: user.name, role: user.role }, process.env.AUTH_SECRET, { expiresIn: "7 days" })
+			respondSuccess(res, 200, { token, name: user.name, email: user.email, _id: user._id })
 		} else {
 			respondErr(res, 500, { errors: ['Usuário/Senha inválidos'] })
 		}
@@ -52,7 +51,7 @@ const obterHash = (password, callback) => {
 const save = (req, res) => {
 	obterHash(req.body.password, hash => {
 		const password = hash
-		serviceUser.insert({ email: req.body.email, username: req.body.username, password: password })
+		serviceUser.insert({ email: req.body.email, name: req.body.name, password: password })
 			.then(result => respondSuccess(res, 200, result))
 			.catch(err => respondErr(res, 500, { errors: [`Erro ao inserir usuário: ${err} `] }))
 	})

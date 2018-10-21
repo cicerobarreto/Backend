@@ -1,7 +1,7 @@
 const { User } = require('../models')
 
 const findByUsername = name => {
-    return User.findOne({ username: name})
+    return User.findOne({ name: name})
 }
 
 const insert = async (user) => {

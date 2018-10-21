@@ -23,5 +23,6 @@ api.use('/removeTask',taskRoute.remove)
 api.use('/messages',messageRoute.findByDate)
 api.use('/insertMessage',messageRoute.insert)
 api.use('/removeMessage',messageRoute.remove)
+api.use('/removeMessageUser',messageRoute.removeMsgUser)
 
 module.exports = { oapi, api }
