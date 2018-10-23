@@ -4,6 +4,8 @@ const moment = require('moment')
 const locale = require('moment/locale/pt-br')
 const services = require('../services')
 const axios = require('axios')
+const AssistantV1 = require('watson-developer-cloud/assistant/v1');
+
 const serviceMessage = services.messageService
 
 const USER_BOT = {
@@ -27,6 +29,53 @@ const findByDate = (req, res) => {
     .then(result => respondSuccess(res, 200, result))
     .catch(err => respondErr(res, 500, { errors: [`Consultar o Message: ${err} `] }))
 }
+
+const assistant = new AssistantV1({
+	username: '7816c41d-254a-4111-82d5-625ee6e4466c',
+	password: '058Eurn2iu8m',
+	url: 'https://gateway.watsonplatform.net/assistant/api',
+	version: '2018-09-14',
+});
+
+const transformResponse = (response) => {
+    let newResponse = {
+		context: response.context,
+		messages: response.output.generic,
+		intents: response.intents
+    }
+    console.log(`resposta: ${newResponse.messages}`);
+    
+	return newResponse;
+}
+
+const chatBotWatson = async (msg, res) => {
+
+    let context = {}
+    const params = {
+        input: { msg },
+        //workspace_id: 'c921db24-9648-4a93-b657-7d4d56969172',
+        workspace_id: '1e5f7992-afca-43df-848b-9223d37b6935',
+        context,
+    };
+
+    try {
+        assistant.message(params, (err, response) => {
+            if (err) {
+                res.status(500).json(err);
+            }
+            console.log(response);
+            response = transformResponse(response);
+            console.log(`response = ${response}`);
+            
+            res.json(response);
+        })
+    } catch (error) {
+        console.log(`error: ${error}`);
+        
+    }
+    
+}
+
 
 const chatBot = async (msg, res) => {
     let baseURL = "https://api.dialogflow.com/v1/query?v=20150910";
@@ -61,7 +110,8 @@ const insert = (req, res) => {
             
     serviceMessage.insert({...req.body, createdAt: new Date()}
     ).then(async result => {
-        await chatBot(req.body, res)
+        //await chatBot(req.body, res)
+        await chatBotWatson(req.body, res)
         respondSuccess(res, 200, result)
     })
     .catch(err => respondErr(res, 500, { errors: [`Consultar o Message: ${err} `] }))
