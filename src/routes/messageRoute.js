@@ -5,6 +5,7 @@ const locale = require('moment/locale/pt-br')
 const services = require('../services')
 const axios = require('axios')
 const AssistantV1 = require('watson-developer-cloud/assistant/v1');
+const {promisify} = require('util');
 
 const serviceMessage = services.messageService
 
@@ -37,38 +38,29 @@ const assistant = new AssistantV1({
 	version: '2018-09-14',
 });
 
-const transformResponse = (response) => {
-    let newResponse = {
-		context: response.context,
-		messages: response.output.generic,
-		intents: response.intents
-    }
-    console.log(`resposta: ${newResponse.messages}`);
-    
-	return newResponse;
-}
+var watsonPromise = promisify(assistant.message.bind(assistant))
 
 const chatBotWatson = async (msg, res) => {
 
     let context = {}
+    let text = msg.text 
+
     const params = {
-        input: { msg },
+        input: { text },
         //workspace_id: 'c921db24-9648-4a93-b657-7d4d56969172',
         workspace_id: '1e5f7992-afca-43df-848b-9223d37b6935',
         context,
     };
 
     try {
-        assistant.message(params, (err, response) => {
-            if (err) {
-                res.status(500).json(err);
-            }
-            console.log(response);
-            response = transformResponse(response);
-            console.log(`response = ${response}`);
-            
-            res.json(response);
-        })
+        var response = await watsonPromise.call(assistant, params);
+        console.log(response);
+        
+        serviceMessage.insert({
+            text: response.output.text[0],
+            user: USER_BOT,
+            createdAt: new Date(),
+            createdFor: msg.user._id})
     } catch (error) {
         console.log(`error: ${error}`);
         
